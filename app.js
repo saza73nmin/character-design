@@ -55,7 +55,7 @@ function recordFromCurrent() { return { id: promptId(currentPrompt.traits), trai
 
 function renderCurrent(animate = true) {
   const t = key => valueName(currentPrompt.traits[key]);
-  $('#prompt-copy').innerHTML = `<mark>${escapeHTML(t('髪色'))}</mark>の<mark>${escapeHTML(t('髪型'))}</mark>。<br><mark>${escapeHTML(t('瞳の色'))}</mark>の<mark>${escapeHTML(t('目の形'))}</mark>と、<mark>${escapeHTML(t('眉'))}</mark>。<br><mark>${escapeHTML(t('口元'))}</mark>で、<mark>${escapeHTML(t('表情'))}</mark>。<br>背景は<mark>${escapeHTML(t('背景色'))}</mark>。`;
+  $('#prompt-copy').innerHTML = `<mark>${escapeHTML(t('髪色'))}</mark>の<mark>${escapeHTML(t('髪型'))}</mark>。<br><mark>${escapeHTML(t('瞳の色'))}</mark>の<mark>${escapeHTML(t('目の形'))}</mark>と、<mark>${escapeHTML(t('眉'))}</mark>。<br><mark>${escapeHTML(t('口元'))}</mark>で、<mark>${escapeHTML(t('表情'))}</mark>。<br><mark>${escapeHTML(t('雰囲気'))}</mark>雰囲気で、背景は<mark>${escapeHTML(t('背景色'))}</mark>。`;
   $('#trait-grid').innerHTML = orderedKeys.map(key => {
     const value = currentPrompt.traits[key];
     const style = isColor(value) ? `style="--swatch:${value.color};--swatch-ink:${value.ink}"` : '';
