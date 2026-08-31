@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="キャラクターデザイン用のお題をランダムに作る、パレット付きジェネレーター">
+  <title>キャラクターお題メーカー</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">CHARACTER DESIGN REQUEST</p>
+        <h1>キャラクターお題メーカー</h1>
+      </div>
+      <div class="header-stats" aria-label="お題の統計">
+        <p class="stat">全 <b id="combination-count">0</b> 通り</p>
+        <p class="stat">消化済み <b id="completed-count">0</b> 題</p>
+        <p class="stat">ストック <b id="stock-count">0</b> 題</p>
+      </div>
+    </header>
+
+    <section class="prompt-card" id="prompt-card" aria-live="polite">
+      <p class="label">TODAY'S request</p>
+      <p class="prompt-copy" id="prompt-copy"></p>
+      <div class="trait-grid" id="trait-grid" aria-label="キャラクターの指定"></div>
+    </section>
+
+    <div class="actions" aria-label="お題の操作">
+      <button class="button button-primary" id="new-prompt" type="button">✦ 新しいお題を出す</button>
+      <button class="button" id="change-colors" type="button">🎨 色変え</button>
+      <button class="button button-stock" id="stock-prompt" type="button">☆ ストックに入れる</button>
+      <button class="button button-complete" id="complete-prompt" type="button">✓ 消化済みにする</button>
+    </div>
+
+    <section class="collection-section">
+      <div class="section-heading">
+        <div><p class="section-kicker">DRAW LATER</p><h2>ストックしたお題</h2></div>
+        <button class="text-button" id="clear-stock" type="button">すべて消去</button>
+      </div>
+      <ul class="collection-list" id="stock-list"></ul>
+    </section>
+
+    <section class="collection-section">
+      <div class="section-heading">
+        <div><p class="section-kicker">DRAWN</p><h2>消化したお題</h2></div>
+        <button class="text-button" id="clear-completed" type="button">すべて消去</button>
+      </div>
+      <ul class="collection-list" id="completed-list"></ul>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>
