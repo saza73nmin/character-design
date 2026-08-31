@@ -15,7 +15,6 @@
         <h1>キャラデザお題箱</h1>
       </div>
       <div class="header-stats" aria-label="お題の統計">
-        <p class="stat">全 <b id="combination-count">0</b> 通り</p>
         <p class="stat">消化済み <b id="completed-count">0</b> 題</p>
         <p class="stat">ストック <b id="stock-count">0</b> 題</p>
       </div>
@@ -33,6 +32,11 @@
       <button class="button button-stock" id="stock-prompt" type="button">☆ ストックに入れる</button>
       <button class="button button-complete" id="complete-prompt" type="button">✓ 消化済みにする</button>
     </div>
+    <div class="share-actions" aria-label="お題をSNSで共有">
+      <span class="share-label">このお題をシェア</span>
+      <button class="share-button share-button-x" id="share-x" type="button" aria-label="現在のお題をXに投稿する">𝕏 Xに投稿</button>
+      <button class="share-button share-button-bluesky" id="share-bluesky" type="button" aria-label="現在のお題をBlueskyに投稿する">☁ Blueskyに投稿</button>
+    </div>
 
     <section class="collection-section">
       <div class="section-heading">
@@ -49,6 +53,7 @@
       </div>
       <ul class="collection-list" id="completed-list"></ul>
     </section>
+    <footer class="site-footer">つくったひと：minmin (X:@szn_minmin)</footer>
   </main>
   <script src="app.js"></script>
 </body>
