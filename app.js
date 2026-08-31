@@ -96,7 +96,7 @@ function removeItem(type, id) { writeCollection(STORAGE[type], readCollection(ST
 function clearCollection(type) { const message = type === 'stock' ? 'ストックをすべて消去しますか？' : '消化済みのお題をすべて消去しますか？'; if (confirm(message)) { localStorage.removeItem(STORAGE[type]); renderCollections(); } }
 function loadStock(id) { const saved = readCollection(STORAGE.stock).find(item => item.id === id); if (saved) { currentPrompt = { traits: saved.traits }; renderCurrent(); window.scrollTo({ top:0, behavior:'smooth' }); } }
 function shareText() {
-  return `${$('#prompt-copy').innerText}\n\n#キャラデザお題箱`;
+  return `${$('#prompt-copy').innerText}\n\n#キャラデザの種`;
 }
 function openShare(url) { window.open(url, '_blank', 'noopener,noreferrer'); }
 
