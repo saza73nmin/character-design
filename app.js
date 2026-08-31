@@ -49,6 +49,14 @@ const formatDate = date => new Intl.DateTimeFormat('ja-JP', { month:'numeric', d
 
 function readCollection(key) { try { return JSON.parse(localStorage.getItem(key)) || []; } catch { return []; } }
 function writeCollection(key, items) { localStorage.setItem(key, JSON.stringify(items)); }
+function migrateLegacyHistory() {
+  const legacy = readCollection('odai-atelier-completed-v1');
+  if (!legacy.length || localStorage.getItem('odai-atelier-completed-v1-migrated')) return;
+  const completed = readCollection(STORAGE.completed);
+  const migrated = legacy.map((item, index) => ({ id:`legacy-${index}-${item.date || 'old'}`, summary:item.summary || '過去のお題', date:item.date || '', traits:null }));
+  writeCollection(STORAGE.completed, [...migrated, ...completed]);
+  localStorage.setItem('odai-atelier-completed-v1-migrated', 'true');
+}
 function makePrompt() { return { traits: Object.fromEntries(orderedKeys.map(key => [key, pickTrait(key)])) }; }
 function summaryOf(prompt) { const t = prompt.traits; return `${valueName(t['髪色'])} / ${valueName(t['髪型'])} / ${valueName(t['瞳の色'])} / 背景：${valueName(t['背景色'])}`; }
 function recordFromCurrent() { return { id: promptId(currentPrompt.traits), traits: currentPrompt.traits, summary: summaryOf(currentPrompt), date: formatDate(new Date()) }; }
@@ -76,7 +84,13 @@ function syncActionButtons() {
 function renderCollection(type) {
   const isStock = type === 'stock'; const items = readCollection(STORAGE[type]);
   const list = $(`#${type}-list`); const emptyMessage = isStock ? 'あとで描きたいお題をストックできます' : 'まだ消化済みのお題はありません';
-  list.innerHTML = items.length ? items.slice().reverse().map(item => `<li class="collection-item"><span class="collection-summary">${escapeHTML(item.summary)}</span><time class="collection-date">${item.date}</time><button class="collection-action" data-load="${escapeHTML(item.id)}" type="button">表示する</button><button class="collection-action collection-remove" data-remove="${escapeHTML(item.id)}" data-type="${type}" type="button">削除</button></li>`).join('') : `<li class="empty-state">${emptyMessage}</li>`;
+  list.innerHTML = items.length ? items.slice().reverse().map(item => `<li class="collection-item">${colorIcon(item)}<span class="collection-summary">${escapeHTML(item.summary)}</span><time class="collection-date">${item.date}</time>${item.traits ? `<button class="collection-action" data-load="${escapeHTML(item.id)}" data-load-type="${type}" type="button">表示する</button>` : ''}<button class="collection-action collection-remove" data-remove="${escapeHTML(item.id)}" data-type="${type}" type="button">削除</button></li>`).join('') : `<li class="empty-state">${emptyMessage}</li>`;
+}
+
+function colorIcon(item) {
+  const traits = item.traits;
+  if (!traits) return '<span class="color-dots" aria-hidden="true"><i class="color-dot" style="background:#cbc7d7"></i><i class="color-dot" style="background:#cbc7d7"></i><i class="color-dot" style="background:#cbc7d7"></i></span>';
+  return `<span class="color-dots" aria-label="髪色・瞳色・背景色"><i class="color-dot" style="background:${traits['髪色'].color}"></i><i class="color-dot" style="background:${traits['瞳の色'].color}"></i><i class="color-dot" style="background:${traits['背景色'].color}"></i></span>`;
 }
 
 function renderCollections() {
@@ -94,7 +108,16 @@ function addTo(type) {
 
 function removeItem(type, id) { writeCollection(STORAGE[type], readCollection(STORAGE[type]).filter(item => item.id !== id)); renderCollections(); }
 function clearCollection(type) { const message = type === 'stock' ? 'ストックをすべて消去しますか？' : '消化済みのお題をすべて消去しますか？'; if (confirm(message)) { localStorage.removeItem(STORAGE[type]); renderCollections(); } }
-function loadStock(id) { const saved = readCollection(STORAGE.stock).find(item => item.id === id); if (saved) { currentPrompt = { traits: saved.traits }; renderCurrent(); window.scrollTo({ top:0, behavior:'smooth' }); } }
+function downloadCompleted() {
+  const items = readCollection(STORAGE.completed);
+  if (!items.length) { alert('ダウンロードする消化済みのお題がありません。'); return; }
+  const header = ['日付', ...orderedKeys];
+  const csvCell = value => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const csv = [header, ...items.map(item => [item.date, ...orderedKeys.map(key => item.traits ? valueName(item.traits[key]) : '')])].map(row => row.map(csvCell).join(',')).join('\r\n');
+  const blob = new Blob([`\uFEFF${csv}`], { type:'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob); const link = document.createElement('a'); link.href = url; link.download = 'character-prompts-completed.csv'; link.click(); URL.revokeObjectURL(url);
+}
+function loadSaved(type, id) { const saved = readCollection(STORAGE[type]).find(item => item.id === id); if (saved?.traits) { currentPrompt = { traits: saved.traits }; renderCurrent(); window.scrollTo({ top:0, behavior:'smooth' }); } }
 function shareText() {
   return `${$('#prompt-copy').innerText}\n\n#キャラデザの種`;
 }
@@ -106,8 +129,10 @@ $('#stock-prompt').addEventListener('click', () => addTo('stock'));
 $('#complete-prompt').addEventListener('click', () => addTo('completed'));
 $('#clear-stock').addEventListener('click', () => clearCollection('stock'));
 $('#clear-completed').addEventListener('click', () => clearCollection('completed'));
+$('#download-completed').addEventListener('click', downloadCompleted);
 $('#share-x').addEventListener('click', () => openShare(`https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText())}`));
 $('#share-bluesky').addEventListener('click', () => openShare(`https://bsky.app/intent/compose?text=${encodeURIComponent(shareText())}`));
-document.addEventListener('click', event => { const target = event.target.closest('button'); if (!target) return; if (target.dataset.load) loadStock(target.dataset.load); if (target.dataset.remove) removeItem(target.dataset.type, target.dataset.remove); });
+document.addEventListener('click', event => { const target = event.target.closest('button'); if (!target) return; if (target.dataset.load) loadSaved(target.dataset.loadType || 'stock', target.dataset.load); if (target.dataset.remove) removeItem(target.dataset.type, target.dataset.remove); });
 
+migrateLegacyHistory();
 currentPrompt = makePrompt(); renderCurrent(false); renderCollections();
