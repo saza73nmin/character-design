@@ -76,7 +76,7 @@ function syncActionButtons() {
 function renderCollection(type) {
   const isStock = type === 'stock'; const items = readCollection(STORAGE[type]);
   const list = $(`#${type}-list`); const emptyMessage = isStock ? 'あとで描きたいお題をストックできます' : 'まだ消化済みのお題はありません';
-  list.innerHTML = items.length ? items.slice().reverse().map(item => `<li class="collection-item"><span class="collection-summary">${escapeHTML(item.summary)}</span><time class="collection-date">${item.date}</time>${isStock ? `<button class="collection-action" data-load="${escapeHTML(item.id)}" type="button">表示する</button>` : ''}<button class="collection-action collection-remove" data-remove="${escapeHTML(item.id)}" data-type="${type}" type="button">削除</button></li>`).join('') : `<li class="empty-state">${emptyMessage}</li>`;
+  list.innerHTML = items.length ? items.slice().reverse().map(item => `<li class="collection-item"><span class="collection-summary">${escapeHTML(item.summary)}</span><time class="collection-date">${item.date}</time><button class="collection-action" data-load="${escapeHTML(item.id)}" type="button">表示する</button><button class="collection-action collection-remove" data-remove="${escapeHTML(item.id)}" data-type="${type}" type="button">削除</button></li>`).join('') : `<li class="empty-state">${emptyMessage}</li>`;
 }
 
 function renderCollections() {
